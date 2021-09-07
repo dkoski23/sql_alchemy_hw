@@ -3,7 +3,7 @@
   {
    "cell_type": "code",
    "execution_count": null,
-   "id": "35b4dda9",
+   "id": "7e2fda03",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -51,12 +51,27 @@
     "    )\n",
     "\n",
     "@app.route('/api/v1.0/precipitation')\n",
-    "def precipitation_query(date, prcp):\n",
+    "def precipitation_query():\n",
+    "    #converts the query results to a dictionary usind date as the key\n",
+    "    #and prcp as the value\n",
     "    session = Session(engine)\n",
-    "    results\n",
+    "    results = session.query(measurement.date, measurement.prcp).all()\n",
+    "    results._asdict()\n",
+    "    return jsonify(results)\n",
+    "        \n",
     "@app.route('/api/v1.0/stations')\n",
+    "def stations:\n",
+    "    #return a list of the stations\n",
+    "    results = session.query(station.station).all()\n",
+    "    stations = list(np.ravel(results))\n",
+    "    return jsonify(stations)\n",
+    "\n",
     "@app.route('/api/v1.0/tobs')\n",
+    "def min_max_timeframe(start, end):\n",
+    "    #results = session.query(func.min(measurement.tobs), func.avg(measurements.tobs)func.max(measurements.tobs))f\n",
     "@app.route('/api/v1.0/<start>')\n",
+    "def min_max_timeframe(start, end):\n",
+    "    #results = session.query(func.min(measurement.tobs), func.avg(measurements.tobs)func.max(measurements.tobs))f\n",
     "@app.route('/api/v1.0/<start>/<end>')"
    ]
   }
