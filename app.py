@@ -1,131 +1,97 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "c1546b58",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "#setup all the necessary imports\n",
-    "%matplotlib inline\n",
-    "from matplotlib import style\n",
-    "style.use('fivethirtyeight')\n",
-    "import matplotlib.pyplot as plt \n",
-    "import numpy as np\n",
-    "import pandas as pd\n",
-    "import datetime as dt\n",
-    "import sqlalchemy\n",
-    "from sqlalchemy.ext.automap import automap_base\n",
-    "from sqlalchemy.orm import Session\n",
-    "from sqlalchemy import create_engine, func\n",
-    "from flash import Flask, jsonify\n",
-    "\n",
-    "#make the engine from the other notbook for this assignment\n",
-    "#basically we are pulling straight from the other notebook here\n",
-    "engine = create_engine(\"sqlite:///Resources/hawaii.sqlite\")\n",
-    "Base = automap_base\n",
-    "# reflect an existing database into a new model\n",
-    "Base = automap_base()\n",
-    "# reflect the tables\n",
-    "Base.prepare(engine, reflect=True)\n",
-    "measurement = Base.classes.measurement\n",
-    "station = Base.classes.station\n",
-    "session = Session(engine)\n",
-    "session\n",
-    "\n",
-    "#do the Flask setup, which is necessary to do in a python file\n",
-    "#instead of a .ipynb in order to run\n",
-    "app = Flask(__name__)\n",
-    "@app.route('/')\n",
-    "def home:\n",
-    "    return(\n",
-    "    f\"Welcome to David's Climate Analysis API!\"\n",
-    "    f\"All Available Routes:\"\n",
-    "    f\"/api/v1.0/precipitation\"\n",
-    "    f\"/api/v1.0/precipitation\"\n",
-    "    f\"/api/v1.0/stations\"\n",
-    "    f\"/api/v1.0/tobs\"\n",
-    "    f\"/api/v1.0/<start>\"\n",
-    "    f\"/api/v1.0/<start>/<end>\"\n",
-    "    )\n",
-    "\n",
-    "@app.route('/api/v1.0/precipitation')\n",
-    "def precipitation_query():\n",
-    "    #converts the query results to a dictionary usind date as the key\n",
-    "    #and prcp as the value\n",
-    "    session = Session(engine)\n",
-    "    results = session.query(measurement.date, measurement.prcp).all()\n",
-    "    results._asdict()\n",
-    "    return jsonify(results)\n",
-    "        \n",
-    "@app.route('/api/v1.0/stations')\n",
-    "def stations():\n",
-    "    #return a list of the stations\n",
-    "    results = session.query(station.station).all()\n",
-    "    stations = list(np.ravel(results))\n",
-    "    return jsonify(stations)\n",
-    "\n",
-    "@app.route('/api/v1.0/tobs')\n",
-    "def tobs():\n",
-    "    #get tobs data as a list\n",
-    "    import datetime as df\n",
-    "    year_results = df.date(2017, 8, 23) - dt.timedelta(days=365)\n",
-    "    last_year = session.query(measurement.station,measurement.tobs).\\\n",
-    "            filter(measurement.station == active_station).\\\n",
-    "            filter(measurement.date >= year_results).all()\n",
-    "    temp_list= []\n",
-    "        for row in last_year:\n",
-    "            row_dict = {}\n",
-    "            row['date'] = last_year[0]\n",
-    "            row[\"tobs\"] = last_year[1]\n",
-    "            temp_list.append(row)\n",
-    "        \n",
-    "    return jsonify(temp_list)\n",
-    "        \n",
-    "@app.route('/api/v1.0/<start>')\n",
-    "def start_date(start):\n",
-    "    #When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.\n",
-    "    import datetime as df\n",
-    "    year_results = df.date(2017, 8, 23) - dt.timedelta(days=365)\n",
-    "    starting = session.query(func.min(measurement.tobs), func.avg(measurements.tobs)func.max(measurements.tobs)).\\\n",
-    "        filter(measurement.date >= start).all()\n",
-    "    return jsonify(starting)\n",
-    "    \n",
-    "    \n",
-    "@app.route('/api/v1.0/<start>/<end>')\n",
-    "def start_end(start,end):\n",
-    "    import datetime as df\n",
-    "    year_results = df.date(2017, 8, 23) - dt.timedelta(days=365)\n",
-    "    start_end = session.query(func.min(measurement.tobs), func.avg(measurements.tobs)func.max(measurements.tobs)).\\\n",
-    "        filter(measurement.date >= start).all().filter(measurements.date <= end).all()\n",
-    "    final = list(np.ravel(start_end))\n",
-    "    return jsonify(starting)    \n",
-    "\n",
-    "if __name__ == '__main__':\n",
-    "    app.run"
-   ]
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.8.8"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
-}
+#setup all the necessary imports
+%matplotlib inline
+from matplotlib import style
+style.use('fivethirtyeight')
+import matplotlib.pyplot as plt 
+import numpy as np
+import pandas as pd
+import datetime as dt
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func
+from flash import Flask, jsonify
+
+#make the engine from the other notbook for this assignment
+#basically we are pulling straight from the other notebook here
+engine = create_engine("sqlite:///Resources/hawaii.sqlite")
+Base = automap_base
+# reflect an existing database into a new model
+Base = automap_base()
+# reflect the tables
+Base.prepare(engine, reflect=True)
+measurement = Base.classes.measurement
+station = Base.classes.station
+session = Session(engine)
+session
+
+#do the Flask setup, which is necessary to do in a python file
+#instead of a .ipynb in order to run
+app = Flask(__name__)
+@app.route('/')
+def home:
+    return(
+    f"Welcome to David's Climate Analysis API!"
+    f"All Available Routes:"
+    f"/api/v1.0/precipitation"
+    f"/api/v1.0/precipitation"
+    f"/api/v1.0/stations"
+    f"/api/v1.0/tobs"
+    f"/api/v1.0/<start>"
+    f"/api/v1.0/<start>/<end>"
+    )
+
+@app.route('/api/v1.0/precipitation')
+def precipitation_query():
+    #converts the query results to a dictionary usind date as the key
+    #and prcp as the value
+    session = Session(engine)
+    results = session.query(measurement.date, measurement.prcp).all()
+    results._asdict()
+    return jsonify(results)
+        
+@app.route('/api/v1.0/stations')
+def stations():
+    #return a list of the stations
+    results = session.query(station.station).all()
+    stations = list(np.ravel(results))
+    return jsonify(stations)
+
+@app.route('/api/v1.0/tobs')
+def tobs():
+    #get tobs data as a list
+    import datetime as df
+    year_results = df.date(2017, 8, 23) - dt.timedelta(days=365)
+    last_year = session.query(measurement.station,measurement.tobs).\
+            filter(measurement.station == active_station).\
+            filter(measurement.date >= year_results).all()
+    temp_list= []
+        for row in last_year:
+            row_dict = {}
+            row['date'] = last_year[0]
+            row["tobs"] = last_year[1]
+            temp_list.append(row)
+        
+    return jsonify(temp_list)
+        
+@app.route('/api/v1.0/<start>')
+def start_date(start):
+    #When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
+    import datetime as df
+    year_results = df.date(2017, 8, 23) - dt.timedelta(days=365)
+    starting = session.query(func.min(measurement.tobs), func.avg(measurements.tobs)func.max(measurements.tobs)).\
+        filter(measurement.date >= start).all()
+    return jsonify(starting)
+    
+    
+@app.route('/api/v1.0/<start>/<end>')
+def start_end(start,end):
+    import datetime as df
+    year_results = df.date(2017, 8, 23) - dt.timedelta(days=365)
+    start_end = session.query(func.min(measurement.tobs), func.avg(measurements.tobs)func.max(measurements.tobs)).\
+        filter(measurement.date >= start).all().filter(measurements.date <= end).all()
+    final = list(np.ravel(start_end))
+    return jsonify(starting)    
+
+if __name__ == '__main__':
+    app.run
